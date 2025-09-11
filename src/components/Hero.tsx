@@ -2,20 +2,101 @@
 
 import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from 'react-icons/fa';
+import { useRef, useState } from 'react';
 
 export default function Hero() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setMousePosition({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      });
+    }
+  };
+
+  const MagneticButton = ({ 
+    children, 
+    href, 
+    className, 
+    ...props 
+  }: {
+    children: React.ReactNode;
+    href: string;
+    className?: string;
+    target?: string;
+    rel?: string;
+  }) => {
+    const buttonRef = useRef<HTMLAnchorElement>(null);
+
+    return (
+      <motion.a
+        ref={buttonRef}
+        href={href}
+        className={className}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+        {...props}
+      >
+        {children}
+      </motion.a>
+    );
+  };
+
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="text-center px-4">
+    <section 
+      ref={containerRef}
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden"
+      onMouseMove={handleMouseMove}
+    >
+      {/* Floating orbs that follow cursor */}
+      <motion.div
+        className="absolute w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+        animate={{
+          x: mousePosition.x * 0.1,
+          y: mousePosition.y * 0.1,
+        }}
+        transition={{ type: "spring", stiffness: 50, damping: 15 }}
+      />
+      <motion.div
+        className="absolute w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
+        animate={{
+          x: mousePosition.x * -0.05,
+          y: mousePosition.y * 0.08,
+        }}
+        transition={{ type: "spring", stiffness: 30, damping: 15 }}
+      />
+
+      <div className="text-center px-4 z-10 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6">
+          <motion.h1 
+            className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
             Hi, I&apos;m{' '}
-            <span className="text-blue-600 dark:text-blue-400">Dlanor Domingo</span>
-          </h1>
+            <motion.span 
+              className="text-blue-600 dark:text-blue-400"
+              animate={{ 
+                textShadow: [
+                  "0px 0px 0px rgba(59, 130, 246, 0)",
+                  "0px 0px 20px rgba(59, 130, 246, 0.5)",
+                  "0px 0px 0px rgba(59, 130, 246, 0)"
+                ]
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Dlanor Domingo
+            </motion.span>
+          </motion.h1>
           
           <motion.p
             initial={{ opacity: 0 }}
@@ -32,36 +113,36 @@ export default function Hero() {
             transition={{ delay: 0.6, duration: 0.8 }}
             className="flex justify-center space-x-6 mb-8"
           >
-            <a
-              href="https://github.com/yourusername"
+            <MagneticButton
+              href="https://github.com/laurreev"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-3 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/20"
             >
               <FaGithub size={32} />
-            </a>
-            <a
-              href="https://linkedin.com/in/yourusername"
+            </MagneticButton>
+            <MagneticButton
+              href="https://linkedin.com/in/dlanordev/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-3 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/20"
             >
               <FaLinkedin size={32} />
-            </a>
-            <a
-              href="https://twitter.com/yourusername"
+            </MagneticButton>
+            <MagneticButton
+              href="https://twitter.com/sinnerdlei"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-3 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/20"
             >
               <FaTwitter size={32} />
-            </a>
-            <a
-              href="mailto:your.email@example.com"
-              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            </MagneticButton>
+            <MagneticButton
+              href="mailto:dlanor.dev@gmail.com"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-3 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/20"
             >
               <FaEnvelope size={32} />
-            </a>
+            </MagneticButton>
           </motion.div>
 
           <motion.div
@@ -70,12 +151,26 @@ export default function Hero() {
             transition={{ delay: 0.9, duration: 0.8 }}
             className="space-x-4"
           >
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors">
+            <motion.button 
+              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.4), 0 10px 10px -5px rgba(59, 130, 246, 0.2)"
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
               View My Work
-            </button>
-            <button className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold py-3 px-8 rounded-lg transition-colors">
+            </motion.button>
+            <motion.button 
+              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+              whileHover={{ 
+                scale: 1.05,
+                boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.2), 0 10px 10px -5px rgba(59, 130, 246, 0.1)"
+              }}
+              whileTap={{ scale: 0.95 }}
+            >
               Download CV
-            </button>
+            </motion.button>
           </motion.div>
         </motion.div>
       </div>
