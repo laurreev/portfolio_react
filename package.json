@@ -6,10 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
-    "export": "next build && next export",
-    "deploy": "npm run build && firebase deploy --only hosting:portfolio-26d52",
-    "firebase:deploy": "firebase deploy --only hosting:portfolio-26d52"
+    "lint": "eslint"
   },
   "dependencies": {
     "firebase": "^12.2.1",
