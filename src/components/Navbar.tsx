@@ -8,22 +8,54 @@ import { usePathname } from 'next/navigation';
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState('');
   const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
+      
+      // Track active section only on home page
+      if (pathname === '/') {
+        const sections = ['skills', 'contact'];
+        const scrollPosition = window.scrollY + 100; // Offset for navbar height
+        
+        let currentSection = '';
+        
+        for (const section of sections) {
+          const element = document.getElementById(section);
+          if (element) {
+            const elementTop = element.offsetTop;
+            const elementBottom = elementTop + element.offsetHeight;
+            
+            if (scrollPosition >= elementTop && scrollPosition < elementBottom) {
+              currentSection = section;
+              break;
+            }
+          }
+        }
+        
+        // If we're at the top of the page, set to home
+        if (window.scrollY < 300) {
+          currentSection = 'home';
+        }
+        
+        setActiveSection(currentSection);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
+    // Set initial active section
+    handleScroll();
+    
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [pathname]);
 
   const navItems = [
-    { href: '/', label: 'Home' },
-    { href: '/projects', label: 'Projects' },
-    { href: '#skills', label: 'Skills' },
-    { href: '#contact', label: 'Contact' },
+    { href: '/', label: 'Home', section: 'home' },
+    { href: '/projects', label: 'Projects', section: null },
+    { href: '#skills', label: 'Skills', section: 'skills' },
+    { href: '#contact', label: 'Contact', section: 'contact' },
   ];
 
   const scrollToSection = (sectionId: string) => {
@@ -43,6 +75,20 @@ export default function Navbar() {
       scrollToSection(href.substring(1));
     }
     setIsMobileMenuOpen(false);
+  };
+
+  const isActive = (item: typeof navItems[0]) => {
+    // For route-based navigation (Projects page)
+    if (item.href.startsWith('/')) {
+      return pathname === item.href;
+    }
+    
+    // For section-based navigation on home page
+    if (pathname === '/' && item.section) {
+      return activeSection === item.section;
+    }
+    
+    return false;
   };
 
   return (
@@ -80,7 +126,7 @@ export default function Navbar() {
                     <button
                       onClick={() => handleNavClick(item.href)}
                       className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        pathname === '/' && item.href === '#home'
+                        isActive(item)
                           ? 'text-blue-600 dark:text-blue-400'
                           : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
                       }`}
@@ -91,7 +137,7 @@ export default function Navbar() {
                     <Link
                       href={item.href}
                       className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                        pathname === item.href
+                        isActive(item)
                           ? 'text-blue-600 dark:text-blue-400'
                           : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
                       }`}
@@ -154,7 +200,11 @@ export default function Navbar() {
               {item.href.startsWith('#') ? (
                 <button
                   onClick={() => handleNavClick(item.href)}
-                  className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActive(item)
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
                 >
                   {item.label}
                 </button>
@@ -162,7 +212,11 @@ export default function Navbar() {
                 <Link
                   href={item.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                    isActive(item)
+                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                      : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
                 >
                   {item.label}
                 </Link>
