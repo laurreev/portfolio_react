@@ -2,21 +2,11 @@
 
 import { motion } from 'framer-motion';
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from 'react-icons/fa';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import Link from 'next/link';
 
 export default function Hero() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setMousePosition({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      });
-    }
-  };
 
   const MagneticButton = ({ 
     children, 
@@ -51,25 +41,10 @@ export default function Hero() {
     <section 
       ref={containerRef}
       className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden"
-      onMouseMove={handleMouseMove}
     >
-      {/* Floating orbs that follow cursor */}
-      <motion.div
-        className="absolute w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
-        animate={{
-          x: mousePosition.x * 0.1,
-          y: mousePosition.y * 0.1,
-        }}
-        transition={{ type: "spring", stiffness: 50, damping: 15 }}
-      />
-      <motion.div
-        className="absolute w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20"
-        animate={{
-          x: mousePosition.x * -0.05,
-          y: mousePosition.y * 0.08,
-        }}
-        transition={{ type: "spring", stiffness: 30, damping: 15 }}
-      />
+      {/* Static background orbs for visual appeal */}
+      <div className="absolute w-96 h-96 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 top-20 left-20" />
+      <div className="absolute w-72 h-72 bg-purple-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 bottom-20 right-20" />
 
       <div className="text-center px-4 z-10 relative">
         <motion.div
@@ -104,7 +79,7 @@ export default function Hero() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
           >
-            Full Stack Developer & Designer passionate about creating amazing web experiences
+            Full Stack Developer & Designer passionate about creating amazing web and mobileexperiences
           </motion.p>
 
           <motion.div
@@ -151,16 +126,18 @@ export default function Hero() {
             transition={{ delay: 0.9, duration: 0.8 }}
             className="space-x-4"
           >
-            <motion.button 
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
-              whileHover={{ 
-                scale: 1.05,
-                boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.4), 0 10px 10px -5px rgba(59, 130, 246, 0.2)"
-              }}
-              whileTap={{ scale: 0.95 }}
-            >
-              View My Work
-            </motion.button>
+            <Link href="/projects">
+              <motion.button 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
+                whileHover={{ 
+                  scale: 1.05,
+                  boxShadow: "0 20px 25px -5px rgba(59, 130, 246, 0.4), 0 10px 10px -5px rgba(59, 130, 246, 0.2)"
+                }}
+                whileTap={{ scale: 0.95 }}
+              >
+                View My Work
+              </motion.button>
+            </Link>
             <motion.button 
               className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl"
               whileHover={{ 

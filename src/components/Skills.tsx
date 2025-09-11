@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { FaReact, FaNodeJs, FaDatabase, FaCloud } from 'react-icons/fa';
-import { SiNextdotjs, SiTypescript, SiTailwindcss, SiFirebase } from 'react-icons/si';
+import { SiNextdotjs, SiTypescript, SiTailwindcss, SiFirebase, SiFlutter, SiDart } from 'react-icons/si';
 import { useState } from 'react';
 
 const skills = [
@@ -12,6 +12,8 @@ const skills = [
   { name: 'Node.js', icon: FaNodeJs, color: 'text-green-600', bgColor: 'bg-green-600' },
   { name: 'Tailwind CSS', icon: SiTailwindcss, color: 'text-cyan-500', bgColor: 'bg-cyan-500' },
   { name: 'Firebase', icon: SiFirebase, color: 'text-orange-500', bgColor: 'bg-orange-500' },
+  { name: 'Flutter', icon: SiFlutter, color: 'text-blue-400', bgColor: 'bg-blue-400' },
+  { name: 'Dart', icon: SiDart, color: 'text-blue-600', bgColor: 'bg-blue-600' },
   { name: 'Database', icon: FaDatabase, color: 'text-gray-600', bgColor: 'bg-gray-600' },
   { name: 'Cloud', icon: FaCloud, color: 'text-blue-400', bgColor: 'bg-blue-400' },
 ];
@@ -37,7 +39,7 @@ export default function Skills() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
           {skills.map((skill, index) => (
             <motion.div
               key={skill.name}
