@@ -109,12 +109,34 @@ export default function Navbar() {
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            className="flex items-center space-x-3"
           >
             <Link
               href="/"
-              className="text-2xl font-bold text-gray-900 dark:text-white"
+              className="flex items-center space-x-3"
             >
-              Dlanor<span className="text-blue-600 dark:text-blue-400">.</span>
+              {/* Profile Image in Navbar */}
+              <motion.img
+                src="/profile.jpg"
+                alt="Dlanor Domingo"
+                className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/20 dark:ring-blue-400/30"
+                whileHover={{ 
+                  scale: 1.1,
+                  rotate: [0, -5, 5, 0]
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 300, 
+                  damping: 20,
+                  rotate: { duration: 0.4 }
+                }}
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTUiIHI9IjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0ibTEwIDMwYzAtNS41MjMgNC40NzctMTAgMTAtMTBzMTAgNC40NzcgMTAgMTB2MmgtMjB6IiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo=';
+                }}
+              />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+                Dlanor<span className="text-blue-600 dark:text-blue-400">.</span>
+              </span>
             </Link>
           </motion.div>
 
