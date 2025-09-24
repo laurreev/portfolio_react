@@ -98,7 +98,7 @@ export default function ContactForm() {
           transition={{ delay: 0.4 }}
         >
           <p className="text-gray-700 dark:text-gray-300 mb-4 font-medium">
-            Have a project in mind? Let's work together!
+            Have a project in mind? Let&apos;s work together!
           </p>
           <div className="flex justify-center space-x-4">
             <motion.a
