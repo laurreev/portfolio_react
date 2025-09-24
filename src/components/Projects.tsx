@@ -45,7 +45,7 @@ const projects = [
     id: 2,
     title: 'Portfolio Website',
     description: 'A modern, responsive portfolio website built with Next.js, featuring interactive animations, smooth scrolling navigation, and responsive design optimized for all devices.',
-    image: '/portfolio.jpg',
+    image: '/portfolio.png',
     tags: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
     icons: [SiNextdotjs, SiReact, SiTypescript, SiTailwindcss],
     github: 'https://github.com/laurreev/portfolio_react',
