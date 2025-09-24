@@ -97,7 +97,7 @@ export default function Projects() {
               src={project.image}
               alt={project.title}
               fill
-              className="object-cover"
+              className="object-contain bg-white dark:bg-gray-100"
               onError={() => {
                 // Image will fallback to the icon display below if it fails
                 console.log(`Failed to load image: ${project.image}`);
