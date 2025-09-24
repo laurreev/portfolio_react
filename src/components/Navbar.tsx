@@ -104,8 +104,8 @@ export default function Navbar() {
       animate={{ y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 xs:h-16">
           {/* Logo */}
           <motion.div
             whileHover={{ scale: 1.05 }}
@@ -128,7 +128,7 @@ export default function Navbar() {
                   damping: 20,
                   rotate: { duration: 0.4 }
                 }}
-                className="relative w-10 h-10"
+                className="relative w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10"
               >
                 <Image
                   src="/profile.jpg"
@@ -136,13 +136,13 @@ export default function Navbar() {
                   width={40}
                   height={40}
                   quality={60}
-                  sizes="40px"
+                  sizes="(max-width: 475px) 32px, (max-width: 640px) 36px, 40px"
                   className="rounded-full object-cover ring-2 ring-blue-500/20 dark:ring-blue-400/30"
                   placeholder="blur"
                   blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+hBOEdwAwAO6j/2Q=="
                 />
               </motion.div>
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">
+              <span className="text-lg xs:text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
                 Dlanor<span className="text-blue-600 dark:text-blue-400"></span>
               </span>
             </Link>
