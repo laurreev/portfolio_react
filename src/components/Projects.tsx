@@ -45,7 +45,7 @@ const projects = [
     id: 2,
     title: 'Portfolio Website',
     description: 'A modern, responsive portfolio website built with Next.js, featuring interactive animations, smooth scrolling navigation, and responsive design optimized for all devices.',
-    image: '/portfolio.png',
+    image: '/portfolio.jpg',
     tags: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
     icons: [SiNextdotjs, SiReact, SiTypescript, SiTailwindcss],
     github: 'https://github.com/laurreev/portfolio_react',
@@ -97,7 +97,7 @@ export default function Projects() {
               src={project.image}
               alt={project.title}
               fill
-              className="object-cover"
+              className="object-contain bg-white dark:bg-gray-100"
               onError={() => {
                 // Image will fallback to the icon display below if it fails
                 console.log(`Failed to load image: ${project.image}`);
