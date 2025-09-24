@@ -13,6 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://dlanordev.vercel.app'),
   title: "Portfolio - Dlanor Domingo",
   description: "Full Stack Developer & Mobile App Developer passionate about creating amazing web and mobile experiences with modern technologies",
   keywords: ["Next.js", "React", "TypeScript", "Full Stack Developer", "Mobile App Developer", "Web Development"],

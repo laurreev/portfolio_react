@@ -60,20 +60,40 @@ export default function Navbar() {
   ];
 
   const scrollToSection = (sectionId: string) => {
+    console.log('scrollToSection called with:', sectionId);
+    console.log('Current pathname:', pathname);
+    
     if (pathname !== '/') {
+      console.log('Not on home page, redirecting...');
       window.location.href = `/#${sectionId}`;
       return;
     }
     
     // Special case for home - scroll to top smoothly
     if (sectionId === 'home') {
+      console.log('Scrolling to top...');
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     
     const element = document.getElementById(sectionId);
+    console.log('Found element for', sectionId, ':', element);
+    
     if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+      console.log('Scrolling to element...');
+      // Add offset for navbar height
+      const navbarHeight = 80;
+      const elementPosition = element.offsetTop - navbarHeight;
+      
+      window.scrollTo({ 
+        top: elementPosition, 
+        behavior: 'smooth' 
+      });
+    } else {
+      console.error('Element not found with ID:', sectionId);
+      // List all elements with IDs for debugging
+      const allElementsWithId = document.querySelectorAll('[id]');
+      console.log('Available elements with IDs:', Array.from(allElementsWithId).map(el => el.id));
     }
   };
 
@@ -224,30 +244,52 @@ export default function Navbar() {
           height: isMobileMenuOpen ? 'auto' : 0,
         }}
         transition={{ duration: 0.3 }}
+        style={{ overflow: 'hidden' }}
       >
-        <div className="px-2 pt-2 pb-3 space-y-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md">
+        <div className="px-2 pt-2 pb-3 space-y-1 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700">
           {navItems.map((item) => (
             <div key={item.href}>
               {item.href.startsWith('#') ? (
                 <button
-                  onClick={() => handleNavClick(item.href)}
-                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Mobile menu item clicked:', item.href);
+                    
+                    // Close menu first
+                    setIsMobileMenuOpen(false);
+                    
+                    // Add a small delay to let the menu close animation complete
+                    setTimeout(() => {
+                      if (item.href.startsWith('#')) {
+                        const sectionId = item.href.substring(1);
+                        console.log('Calling scrollToSection with:', sectionId);
+                        scrollToSection(sectionId);
+                      }
+                    }, 10);
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md text-base font-medium transition-colors cursor-pointer touch-manipulation ${
                     isActive(item)
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
                       : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
+                  style={{ minHeight: '44px' }}
                 >
                   {item.label}
                 </button>
               ) : (
                 <Link
                   href={item.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors ${
+                  onClick={() => {
+                    console.log('Mobile menu link clicked:', item.href);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`block px-3 py-2 rounded-md text-base font-medium transition-colors cursor-pointer touch-manipulation ${
                     isActive(item)
                       ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
                       : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                   }`}
+                  style={{ minHeight: '44px', display: 'flex', alignItems: 'center' }}
                 >
                   {item.label}
                 </Link>
