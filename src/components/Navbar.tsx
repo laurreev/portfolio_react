@@ -19,8 +19,9 @@ export default function Navbar() {
         if (pathname === '/') {
           const sections = ['skills', 'projects', 'contact'];
           const scrollPosition = window.scrollY + 100; // Offset for navbar height        
-          let currentSection = '';
+          let currentSection = 'home'; // Default to home
         
+        // Check if we're in any specific section
         for (const section of sections) {
           const element = document.getElementById(section);
           if (element) {
@@ -34,8 +35,8 @@ export default function Navbar() {
           }
         }
         
-        // If we're at the top of the page, set to home
-        if (window.scrollY < 300) {
+        // If we're at the very top of the page, show home as active
+        if (window.scrollY < 200) {
           currentSection = 'home';
         }
         
@@ -51,15 +52,21 @@ export default function Navbar() {
   }, [pathname]);
 
   const navItems = [
-    { href: '/', label: 'Home', section: 'home' },
-    { href: '#projects', label: 'Projects', section: 'projects' },
+    { href: '#home', label: 'Home', section: 'home' },
     { href: '#skills', label: 'Skills', section: 'skills' },
+    { href: '#projects', label: 'Projects', section: 'projects' },
     { href: '#contact', label: 'Contact', section: 'contact' },
   ];
 
   const scrollToSection = (sectionId: string) => {
     if (pathname !== '/') {
       window.location.href = `/#${sectionId}`;
+      return;
+    }
+    
+    // Special case for home - scroll to top smoothly
+    if (sectionId === 'home') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     
@@ -77,11 +84,6 @@ export default function Navbar() {
   };
 
   const isActive = (item: typeof navItems[0]) => {
-    // For route-based navigation (Projects page)
-    if (item.href.startsWith('/')) {
-      return pathname === item.href;
-    }
-    
     // For section-based navigation on home page
     if (pathname === '/' && item.section) {
       return activeSection === item.section;
