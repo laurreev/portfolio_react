@@ -1,42 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { submitContactForm, ContactFormData } from '@/lib/contact';
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState<ContactFormData>({
-    name: '',
-    email: '',
-    message: '',
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const formRef = useRef<HTMLFormElement>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
-
-    const result = await submitContactForm(formData);
+    setSubmitting(true);
     
-    if (result.success) {
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', message: '' });
+    const form = formRef.current;
+    if (!form) return;
+    
+    const data = new FormData(form);
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      body: data,
+    });
+    
+    setSubmitting(false);
+    
+    if (res.ok) {
+      setDialogOpen(true);
+      form.reset();
     } else {
-      setSubmitStatus('error');
+      alert("There was an error submitting the form. Please try again.");
     }
-    
-    setIsSubmitting(false);
   };
 
   const inputVariants = {
@@ -79,8 +72,24 @@ export default function ContactForm() {
         >
           Contact Me
         </motion.h2>
+
+        {/* Display your email */}
+        <motion.div
+          className="text-center mb-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Get in touch with me directly:</p>
+          <a 
+            href="mailto:dlanor.dev@gmail.com"
+            className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
+          >
+            dlanor.dev@gmail.com
+          </a>
+        </motion.div>
         
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
           <motion.div
             variants={inputVariants}
             animate={focusedField === 'name' ? 'focused' : 'unfocused'}
@@ -91,12 +100,12 @@ export default function ContactForm() {
             <motion.input
               type="text"
               id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
+              name="Name"
               onFocus={() => setFocusedField('name')}
               onBlur={() => setFocusedField(null)}
               required
+              disabled={submitting}
+              placeholder="Your Full Name"
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-300"
               whileFocus={{ 
                 boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
@@ -110,17 +119,41 @@ export default function ContactForm() {
             animate={focusedField === 'email' ? 'focused' : 'unfocused'}
           >
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Email
+              Your Email Address
             </label>
             <motion.input
               type="email"
               id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
+              name="Email"
               onFocus={() => setFocusedField('email')}
               onBlur={() => setFocusedField(null)}
               required
+              disabled={submitting}
+              placeholder="your@email.com"
+              className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-300"
+              whileFocus={{ 
+                boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
+                borderColor: "#3b82f6"
+              }}
+            />
+          </motion.div>
+
+          <motion.div
+            variants={inputVariants}
+            animate={focusedField === 'subject' ? 'focused' : 'unfocused'}
+          >
+            <label htmlFor="subject" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Subject
+            </label>
+            <motion.input
+              type="text"
+              id="subject"
+              name="Subject"
+              onFocus={() => setFocusedField('subject')}
+              onBlur={() => setFocusedField(null)}
+              required
+              disabled={submitting}
+              placeholder="Subject of your message"
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-300"
               whileFocus={{ 
                 boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
@@ -138,13 +171,13 @@ export default function ContactForm() {
             </label>
             <motion.textarea
               id="message"
-              name="message"
-              value={formData.message}
-              onChange={handleChange}
+              name="Message"
               onFocus={() => setFocusedField('message')}
               onBlur={() => setFocusedField(null)}
               required
-              rows={4}
+              disabled={submitting}
+              rows={5}
+              placeholder="Please enter your message here..."
               className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white transition-all duration-300 resize-none"
               whileFocus={{ 
                 boxShadow: "0 0 0 3px rgba(59, 130, 246, 0.1)",
@@ -155,7 +188,7 @@ export default function ContactForm() {
 
           <motion.button
             type="submit"
-            disabled={isSubmitting}
+            disabled={submitting}
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 relative overflow-hidden"
             whileHover={{ 
               scale: 1.02,
@@ -167,33 +200,66 @@ export default function ContactForm() {
             <motion.div
               className="absolute inset-0 bg-white"
               initial={{ scale: 0, opacity: 0.3 }}
-              animate={isSubmitting ? { scale: 2, opacity: 0 } : { scale: 0 }}
+              animate={submitting ? { scale: 2, opacity: 0 } : { scale: 0 }}
               transition={{ duration: 0.6 }}
               style={{ borderRadius: '50%', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}
             />
             
             <span className="relative z-10">
-              {isSubmitting ? 'Sending...' : 'Send Message'}
+              {submitting ? 'Sending...' : 'Send Message'}
             </span>
           </motion.button>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ 
-              opacity: submitStatus !== 'idle' ? 1 : 0,
-              scale: submitStatus !== 'idle' ? 1 : 0.8
-            }}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-          >
-            {submitStatus === 'success' && (
-              <p className="text-green-600 text-center font-medium">Message sent successfully! ✨</p>
-            )}
-            
-            {submitStatus === 'error' && (
-              <p className="text-red-600 text-center font-medium">Failed to send message. Please try again.</p>
-            )}
-          </motion.div>
         </form>
+
+        {/* Success Dialog */}
+        {dialogOpen && (
+          <motion.div 
+            className="fixed inset-0 flex items-center justify-center z-50 bg-black/60"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div 
+              className="bg-white dark:bg-gray-800 border border-blue-500 rounded-xl p-8 shadow-2xl flex flex-col items-center max-w-md mx-4"
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            >
+              <motion.span 
+                className="text-4xl mb-4 text-blue-600"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 500 }}
+              >
+                ✅
+              </motion.span>
+              <motion.p 
+                className="text-gray-900 dark:text-gray-100 mb-6 text-center"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+              >
+                Your message has been submitted successfully.<br />
+                Thank you for reaching out!<br />
+                <span className="block mt-2 text-sm text-blue-600 dark:text-blue-400">
+                  You will receive an automatic confirmation email shortly. Please check your inbox (and spam folder).
+                </span>
+              </motion.p>
+              <motion.button 
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300"
+                onClick={() => setDialogOpen(false)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+              >
+                Close
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
