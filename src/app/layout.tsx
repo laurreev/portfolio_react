@@ -33,7 +33,7 @@ export const metadata: Metadata = {
     siteName: "Dlanor's Portfolio",
     images: [
       {
-        url: "/profile.jpg",
+        url: "/favicon.ico",
         width: 1200,
         height: 630,
         alt: "Dlanor Domingo - Full Stack Developer",
