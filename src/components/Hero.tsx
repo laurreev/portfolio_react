@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { FaGithub, FaLinkedin, FaTwitter, FaEnvelope } from 'react-icons/fa';
 import { useRef } from 'react';
 import Link from 'next/link';
@@ -59,25 +60,35 @@ export default function Hero() {
             transition={{ delay: 0.2, duration: 0.8, type: "spring", stiffness: 200 }}
             className="mb-8"
           >
-            <motion.img
-              src="/profile.jpg"
-              alt="Dlanor Domingo"
-              className="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto object-cover shadow-2xl ring-4 ring-blue-500/20 dark:ring-blue-400/30"
-              whileHover={{ 
-                scale: 1.1,
-                rotate: [0, -5, 5, 0],
-                boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.4)"
-              }}
-              transition={{ 
-                type: "spring", 
-                stiffness: 300, 
-                damping: 20,
-                rotate: { duration: 0.6 }
-              }}
-              onError={(e) => {
-                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzciIHI9IjEyIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Im0yNSA3NWMwLTEzLjgwNyAxMS4xOTMtMjUgMjUtMjVzMjUgMTEuMTkzIDI1IDI1djVoLTUweiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
-              }}
-            />
+            <div className="relative w-32 h-32 md:w-40 md:h-40 mx-auto">
+              <motion.div
+                whileHover={{ 
+                  scale: 1.1,
+                  rotate: [0, -5, 5, 0],
+                }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 300, 
+                  damping: 20,
+                  rotate: { duration: 0.6 }
+                }}
+                className="w-full h-full"
+              >
+                <Image
+                  src="/profile.jpg"
+                  alt="Dlanor Domingo"
+                  width={160}
+                  height={160}
+                  priority
+                  quality={60}
+                  sizes="(max-width: 768px) 128px, 160px"
+                  className="w-full h-full rounded-full object-cover shadow-2xl ring-4 ring-blue-500/20 dark:ring-blue-400/30"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAEAAQDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAcEAABBAMBAAAAAAAAAAAAAAABAAIDBAUREiH/xAAVAQEBAAAAAAAAAAAAAAAAAAADBP/EABwRAAEEAwEAAAAAAAAAAAAAAAEAAgMEERIhQf/aAAwDAQACEQMRAD8Aqw5usV+fh7mOdHXhzQZnbPx2u8+THq8rQVyMKNBJSR0YlYSm6N2HIRHjG5DX4L82Py/AAu8+THqNZPAQ9ZTaB2HIRHjL//2Q=="
+                  loading="eager"
+                />
+              </motion.div>
+            </div>
           </motion.div>
 
           <motion.h1 

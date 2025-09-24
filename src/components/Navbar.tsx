@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -116,10 +117,7 @@ export default function Navbar() {
               className="flex items-center space-x-3"
             >
               {/* Profile Image in Navbar */}
-              <motion.img
-                src="/profile.jpg"
-                alt="Dlanor Domingo"
-                className="w-10 h-10 rounded-full object-cover ring-2 ring-blue-500/20 dark:ring-blue-400/30"
+              <motion.div
                 whileHover={{ 
                   scale: 1.1,
                   rotate: [0, -5, 5, 0]
@@ -130,12 +128,22 @@ export default function Navbar() {
                   damping: 20,
                   rotate: { duration: 0.4 }
                 }}
-                onError={(e) => {
-                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTUiIHI9IjUiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0ibTEwIDMwYzAtNS41MjMgNC40NzctMTAgMTAtMTBzMTAgNC40NzcgMTAgMTB2MmgtMjB6IiBmaWxsPSIjOUNBM0FGIi8+Cjwvc3ZnPgo=';
-                }}
-              />
+                className="relative w-10 h-10"
+              >
+                <Image
+                  src="/profile.jpg"
+                  alt="Dlanor Domingo"
+                  width={40}
+                  height={40}
+                  quality={60}
+                  sizes="40px"
+                  className="rounded-full object-cover ring-2 ring-blue-500/20 dark:ring-blue-400/30"
+                  placeholder="blur"
+                  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R+hBOEdwAwAO6j/2Q=="
+                />
+              </motion.div>
               <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                Dlanor<span className="text-blue-600 dark:text-blue-400">.</span>
+                Dlanor<span className="text-blue-600 dark:text-blue-400"></span>
               </span>
             </Link>
           </motion.div>
