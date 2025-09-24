@@ -1,39 +1,62 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
-import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFirebase, SiFlutter, SiDart, SiNodedotjs } from 'react-icons/si';
+import { FaGithub, FaExternalLinkAlt, FaShieldAlt, FaMapMarkedAlt, FaMobile } from 'react-icons/fa';
+import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFirebase, SiFlutter, SiDart, SiNodedotjs, SiGooglecloud } from 'react-icons/si';
+
+interface Project {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  icons: any[];
+  github: string;
+  demo: string;
+  featured: boolean;
+  highlights?: string[];
+  isPrivate?: boolean;
+}
 
 const projects = [
   {
     id: 1,
-    title: 'Portfolio Website',
-    description: 'A modern, responsive portfolio website built with Next.js, featuring interactive animations, dark mode support, and Firebase integration.',
-    image: '/project-portfolio.jpg', // You can add actual images later
-    tags: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Firebase'],
-    icons: [SiNextdotjs, SiReact, SiTypescript, SiTailwindcss, SiFirebase],
-    github: 'https://github.com/laurreev/portfolio_react',
+    title: 'PhilSCA Ligtas - Campus Safety System',
+    description: 'A mission-critical emergency response mobile application built for Philippine State College of Aeronautics. This comprehensive safety platform combines real-time communication, interactive mapping, and advanced admin controls to ensure campus-wide emergency preparedness and response coordination. [Private client project - code and demo unavailable for public viewing]',
+    image: '/philsca.png',
+    tags: ['Flutter', 'Dart', 'Firebase', 'Google Cloud', 'Real-time Database', 'Push Notifications'],
+    icons: [SiFlutter, SiDart, SiFirebase, SiGooglecloud, FaShieldAlt, FaMapMarkedAlt],
+    github: '#',
     demo: '#',
     featured: true,
+    isPrivate: true,
+    highlights: [
+      'Real-time Emergency Roll Call system with automatic timeout and status tracking for 60+ users',
+      'Interactive campus mapping with pinch-to-zoom, evacuation routes, and fire extinguisher locations',
+      'Advanced admin dashboard with user management, bulk operations, and role-based access control',
+      'Firebase Cloud Messaging for instant push notifications and background emergency alerts',
+      'Automated backup system with scheduled data synchronization and recovery capabilities',
+      'Comprehensive safety guides covering earthquakes, fires, typhoons, first aid, and CPR procedures'
+    ]
   },
   {
     id: 2,
-    title: 'E-Commerce Platform',
-    description: 'Full-stack e-commerce solution with user authentication, payment processing, and admin dashboard.',
-    image: '/project-ecommerce.jpg',
-    tags: ['React', 'Node.js', 'TypeScript', 'Firebase'],
-    icons: [SiReact, SiNodedotjs, SiTypescript, SiFirebase],
-    github: '#',
-    demo: '#',
+    title: 'Portfolio Website',
+    description: 'A modern, responsive portfolio website built with Next.js, featuring interactive animations, smooth scrolling navigation, and responsive design optimized for all devices.',
+    image: '/portfolio.JPG',
+    tags: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
+    icons: [SiNextdotjs, SiReact, SiTypescript, SiTailwindcss],
+    github: 'https://github.com/laurreev/portfolio_react',
+    demo: 'https://dlanordev.vercel.app/',
     featured: true,
   },
   {
     id: 3,
-    title: 'Mobile Task Manager',
-    description: 'Cross-platform mobile app for task management with offline support and cloud synchronization.',
-    image: '/project-mobile.jpg',
-    tags: ['Flutter', 'Dart', 'Firebase'],
-    icons: [SiFlutter, SiDart, SiFirebase],
+    title: 'E-Commerce Platform',
+    description: 'Full-stack e-commerce solution with user authentication, payment processing, inventory management, and comprehensive admin dashboard.',
+    image: '/project-ecommerce.jpg',
+    tags: ['React', 'Node.js', 'TypeScript', 'Firebase', 'Stripe API'],
+    icons: [SiReact, SiNodedotjs, SiTypescript, SiFirebase],
     github: '#',
     demo: '#',
     featured: false,
@@ -41,9 +64,9 @@ const projects = [
   {
     id: 4,
     title: 'Weather Dashboard',
-    description: 'Real-time weather dashboard with location-based forecasts and interactive maps.',
+    description: 'Real-time weather dashboard with location-based forecasts, interactive maps, and weather alerts using OpenWeather API.',
     image: '/project-weather.jpg',
-    tags: ['React', 'TypeScript', 'Tailwind CSS'],
+    tags: ['React', 'TypeScript', 'Tailwind CSS', 'OpenWeather API'],
     icons: [SiReact, SiTypescript, SiTailwindcss],
     github: '#',
     demo: '#',
@@ -55,7 +78,7 @@ export default function Projects() {
   const featuredProjects = projects.filter(project => project.featured);
   const otherProjects = projects.filter(project => !project.featured);
 
-  const ProjectCard = ({ project, index }: { project: typeof projects[0]; index: number }) => (
+  const ProjectCard = ({ project, index }: { project: Project; index: number }) => (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -64,17 +87,41 @@ export default function Projects() {
       className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
       whileHover={{ y: -10 }}
     >
-      {/* Project Image Placeholder */}
-      <div className="h-48 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 relative overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-6xl text-blue-600/20 dark:text-blue-400/20">
-            {(() => {
-              const IconComponent = project.icons[0];
-              return IconComponent ? <IconComponent /> : null;
-            })()}
+      {/* Project Image */}
+      <div className="h-48 relative overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
+        {project.image && project.image !== '/' ? (
+          <>
+            <img
+              src={project.image}
+              alt={project.title}
+              className="w-full h-full object-contain bg-white dark:bg-gray-100"
+              onError={(e) => {
+                // Fallback to icon if image fails to load
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'flex';
+              }}
+            />
+            <div className="absolute inset-0 hidden items-center justify-center">
+              <div className="text-6xl text-blue-600/20 dark:text-blue-400/20">
+                {(() => {
+                  const IconComponent = project.icons[0];
+                  return IconComponent ? <IconComponent /> : null;
+                })()}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-6xl text-blue-600/20 dark:text-blue-400/20">
+              {(() => {
+                const IconComponent = project.icons[0];
+                return IconComponent ? <IconComponent /> : null;
+              })()}
+            </div>
           </div>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
       </div>
 
       <div className="p-6">
@@ -85,6 +132,27 @@ export default function Projects() {
         <p className="text-gray-600 dark:text-gray-300 mb-4 leading-relaxed">
           {project.description}
         </p>
+
+        {/* Project Highlights */}
+        {project.highlights && (
+          <div className="mb-4">
+            <h4 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Key Features:</h4>
+            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+              {project.highlights.slice(0, project.featured && project.id === 1 ? 4 : 3).map((highlight, highlightIndex) => (
+                <li key={highlightIndex} className="flex items-start gap-2">
+                  <span className="text-blue-600 dark:text-blue-400 mt-1">•</span>
+                  <span>{highlight}</span>
+                </li>
+              ))}
+              {project.highlights.length > (project.featured && project.id === 1 ? 4 : 3) && (
+                <li className="flex items-start gap-2 text-blue-600 dark:text-blue-400">
+                  <span className="mt-1">•</span>
+                  <span className="text-xs font-medium">+{project.highlights.length - (project.featured && project.id === 1 ? 4 : 3)} more features</span>
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
 
         {/* Tech Stack Icons */}
         <div className="flex items-center gap-3 mb-4">
@@ -113,29 +181,40 @@ export default function Projects() {
 
         {/* Action Buttons */}
         <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-          <motion.a
-            href={project.github}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaGithub />
-            <span className="text-sm font-medium">Code</span>
-          </motion.a>
-          
-          <motion.a
-            href={project.demo}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <FaExternalLinkAlt />
-            <span>Live Demo</span>
-          </motion.a>
+          {project.isPrivate ? (
+            <div className="flex items-center justify-center w-full">
+              <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                <FaShieldAlt className="text-orange-500" />
+                <span className="text-sm font-medium">Private Client Project</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <motion.a
+                href={project.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FaGithub />
+                <span className="text-sm font-medium">Code</span>
+              </motion.a>
+              
+              <motion.a
+                href={project.demo}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FaExternalLinkAlt />
+                <span>Live Demo</span>
+              </motion.a>
+            </>
+          )}
         </div>
       </div>
     </motion.div>
@@ -156,8 +235,8 @@ export default function Projects() {
             My <span className="text-blue-600 dark:text-blue-400">Projects</span>
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Here are some of the projects I&apos;ve worked on. Each one represents a unique challenge 
-            and an opportunity to learn something new.
+            From mission-critical mobile applications to modern web platforms, here are some of the projects 
+            that showcase my expertise in cross-platform development, real-time systems, and user-centered design.
           </p>
         </motion.div>
 

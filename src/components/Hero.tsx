@@ -52,6 +52,34 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
+          {/* Profile Image */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.8, type: "spring", stiffness: 200 }}
+            className="mb-8"
+          >
+            <motion.img
+              src="/profile.jpg"
+              alt="Dlanor Domingo"
+              className="w-32 h-32 md:w-40 md:h-40 rounded-full mx-auto object-cover shadow-2xl ring-4 ring-blue-500/20 dark:ring-blue-400/30"
+              whileHover={{ 
+                scale: 1.1,
+                rotate: [0, -5, 5, 0],
+                boxShadow: "0 25px 50px -12px rgba(59, 130, 246, 0.4)"
+              }}
+              transition={{ 
+                type: "spring", 
+                stiffness: 300, 
+                damping: 20,
+                rotate: { duration: 0.6 }
+              }}
+              onError={(e) => {
+                e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxjaXJjbGUgY3g9IjUwIiBjeT0iMzciIHI9IjEyIiBmaWxsPSIjOUNBM0FGIi8+CjxwYXRoIGQ9Im0yNSA3NWMwLTEzLjgwNyAxMS4xOTMtMjUgMjUtMjVzMjUgMTEuMTkzIDI1IDI1djVoLTUweiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+              }}
+            />
+          </motion.div>
+
           <motion.h1 
             className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-white mb-6 cursor-pointer"
             whileHover={{ scale: 1.02 }}
@@ -79,7 +107,7 @@ export default function Hero() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto"
           >
-            Full Stack Developer & Designer passionate about creating amazing web and mobileexperiences
+            Full Stack Developer & Mobile App Developer passionate about creating amazing web and mobile experiences with modern technologies
           </motion.p>
 
           <motion.div
