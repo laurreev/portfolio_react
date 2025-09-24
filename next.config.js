@@ -13,9 +13,8 @@ const nextConfig = {
   trailingSlash: false,
   // Compress images and other assets
   compress: true,
-  // Enable experimental features for better performance
+  // Safe experimental features
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['framer-motion', 'react-icons'],
   },
 }
