@@ -32,18 +32,18 @@ export async function POST(req: Request) {
     await transporter.sendMail({
       from: `Portfolio Contact <${process.env.SMTP_USER}>`,
       to: "dlanor.dev@gmail.com", // your static email
-      subject: `New Professional Inquiry from Dlanor Portfolio`,
+      subject: `New Inquiry from your Portfolio`,
       text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject}\nMessage: ${message}`,
       html: `<b>Name:</b> ${name}<br/><b>Email:</b> ${email}<br/><b>Subject:</b> ${subject}<br/><b>Message:</b><br/>${message}`,
     });
 
     // Auto-response to sender
     await transporter.sendMail({
-      from: `Dlanor Portfolio <${process.env.SMTP_USER}>`,
+      from: `Dlanor Domingo <${process.env.SMTP_USER}>`,
       to: email,
-      subject: "Thank you for contacting Dlanor Portfolio",
-      text: `Dear ${name || "Guest"},\n\nThank you for your email. Your message has been received and I will get back to you as soon as possible.\n\nIf you need to reach me directly, contact dlanor.dev@gmail.com.\n\nBest regards,\nDlanor Domingo`,
-      html: `<p>Dear ${name || "Guest"},</p><p>Thank you for your email. Your message has been received and I will get back to you as soon as possible.</p><p>If you need to reach me directly, contact <a href="mailto:dlanor.dev@gmail.com">dlanor.dev@gmail.com</a>.</p><p>Best regards,<br/>Dlanor Domingo</p>`,
+      subject: "Thank you for contacting Dlanor Domingo",
+      text: `Dear ${name || "Guest"},\n\nThank you for your email. Your message has been received and I will get back to you as soon as possible.\n\nIf you need to reach me directly, contact dlanor.dev@gmail.com.\n You can also find me on social media: \nFacebook: https://www.facebook.com/sinnerdlei\nInstagram: https://www.instagram.com/sinnerdlei\nTelegram: https://t.me/sinnerdlei\nTwitter: https://twitter.com/sinnerdlei\n\nBest regards,\nDlanor Domingo`,
+      html: `<p>Dear ${name || "Guest"},</p><p>Thank you for your email. Your message has been received and I will get back to you as soon as possible.</p><p>If you need to reach me directly, contact <a href="mailto:dlanor.dev@gmail.com">dlanor.dev@gmail.com</a>.</p><p>You can also find me on social media:</p><ul><li>Facebook: <a href="https://www.facebook.com/sinnerdlei">https://www.facebook.com/sinnerdlei</a></li><li>Instagram: <a href="https://www.instagram.com/sinnerdlei">https://www.instagram.com/sinnerdlei</a></li><li>Telegram: <a href="https://t.me/sinnerdlei">https://t.me/sinnerdlei</a></li><li>Twitter: <a href="https://twitter.com/sinnerdlei">https://twitter.com/sinnerdlei</a></li></ul><p>Best regards,<br/>Dlanor Domingo</p>`,
     });
 
     return new Response(JSON.stringify({ ok: true }), { status: 200 });

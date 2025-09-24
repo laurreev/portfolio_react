@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
+import { FaFacebook, FaInstagram, FaTiktok, FaTelegram } from 'react-icons/fa';
 
 export default function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
@@ -87,6 +88,64 @@ export default function ContactForm() {
           >
             dlanor.dev@gmail.com
           </a>
+        </motion.div>
+
+        {/* Social Media Section */}
+        <motion.div
+          className="text-center mb-6"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <p className="text-gray-700 dark:text-gray-300 mb-4 font-medium">
+            Have a project in mind? Let's work together!
+          </p>
+          <div className="flex justify-center space-x-4">
+            <motion.a
+              href="https://facebook.com/sinnerdlei"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/20"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <FaFacebook size={24} />
+            </motion.a>
+            <motion.a
+              href="https://instagram.com/sinnerdlei"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 transition-colors p-2 rounded-full hover:bg-pink-100 dark:hover:bg-pink-900/20"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <FaInstagram size={24} />
+            </motion.a>
+            <motion.a
+              href="https://tiktok.com/@sinnerdlei"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <FaTiktok size={24} />
+            </motion.a>
+            <motion.a
+              href="https://t.me/sinnerdlei"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-600 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors p-2 rounded-full hover:bg-sky-100 dark:hover:bg-sky-900/20"
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            >
+              <FaTelegram size={24} />
+            </motion.a>
+          </div>
         </motion.div>
         
         <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
