@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Portfolio - Dlanor Domingo",
     description: "Full Stack Developer & Mobile App Developer",
-    images: ["/profile.jpg"],
+    images: ["/favicon.ico"],
     creator: "@sinnerdlei",
   },
   robots: {
