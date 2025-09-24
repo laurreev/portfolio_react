@@ -1,8 +1,10 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FaGithub, FaExternalLinkAlt, FaShieldAlt, FaMapMarkedAlt, FaMobile } from 'react-icons/fa';
+import Image from 'next/image';
+import { FaGithub, FaExternalLinkAlt, FaShieldAlt, FaMapMarkedAlt } from 'react-icons/fa';
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFirebase, SiFlutter, SiDart, SiNodedotjs, SiGooglecloud } from 'react-icons/si';
+import { IconType } from 'react-icons';
 
 interface Project {
   id: number;
@@ -10,7 +12,7 @@ interface Project {
   description: string;
   image: string;
   tags: string[];
-  icons: any[];
+  icons: IconType[];
   github: string;
   demo: string;
   featured: boolean;
@@ -91,15 +93,14 @@ export default function Projects() {
       <div className="h-48 relative overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
         {project.image && project.image !== '/' ? (
           <>
-            <img
+            <Image
               src={project.image}
               alt={project.title}
-              className="w-full h-full object-contain bg-white dark:bg-gray-100"
-              onError={(e) => {
-                // Fallback to icon if image fails to load
-                e.currentTarget.style.display = 'none';
-                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                if (fallback) fallback.style.display = 'flex';
+              fill
+              className="object-contain bg-white dark:bg-gray-100"
+              onError={() => {
+                // Image will fallback to the icon display below if it fails
+                console.log(`Failed to load image: ${project.image}`);
               }}
             />
             <div className="absolute inset-0 hidden items-center justify-center">
