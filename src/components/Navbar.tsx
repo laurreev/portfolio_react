@@ -15,12 +15,11 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       
-      // Track active section only on home page
-      if (pathname === '/') {
-        const sections = ['skills', 'contact'];
-        const scrollPosition = window.scrollY + 100; // Offset for navbar height
-        
-        let currentSection = '';
+        // Track active section only on home page
+        if (pathname === '/') {
+          const sections = ['skills', 'projects', 'contact'];
+          const scrollPosition = window.scrollY + 100; // Offset for navbar height        
+          let currentSection = '';
         
         for (const section of sections) {
           const element = document.getElementById(section);
@@ -53,7 +52,7 @@ export default function Navbar() {
 
   const navItems = [
     { href: '/', label: 'Home', section: 'home' },
-    { href: '/projects', label: 'Projects', section: null },
+    { href: '#projects', label: 'Projects', section: 'projects' },
     { href: '#skills', label: 'Skills', section: 'skills' },
     { href: '#contact', label: 'Contact', section: 'contact' },
   ];

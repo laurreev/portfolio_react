@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { FaGithub, FaExternalLinkAlt } from 'react-icons/fa';
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFirebase, SiFlutter, SiDart, SiNodedotjs } from 'react-icons/si';
-import Navbar from '@/components/Navbar';
 
 const projects = [
   {
@@ -52,7 +51,7 @@ const projects = [
   },
 ];
 
-export default function ProjectsPage() {
+export default function Projects() {
   const featuredProjects = projects.filter(project => project.featured);
   const otherProjects = projects.filter(project => !project.featured);
 
@@ -143,20 +142,19 @@ export default function ProjectsPage() {
   );
 
   return (
-    <>
-      <Navbar />
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <section id="projects" className="py-20 bg-gray-50 dark:bg-gray-900">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
             My <span className="text-blue-600 dark:text-blue-400">Projects</span>
-          </h1>
+          </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Here are some of the projects I&apos;ve worked on. Each one represents a unique challenge 
             and an opportunity to learn something new.
@@ -164,42 +162,41 @@ export default function ProjectsPage() {
         </motion.div>
 
         {/* Featured Projects */}
-        <section className="mb-16">
-          <motion.h2
+        <div className="mb-16">
+          <motion.h3
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="text-3xl font-bold text-gray-900 dark:text-white mb-8"
           >
             Featured Projects
-          </motion.h2>
+          </motion.h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {featuredProjects.map((project, index) => (
               <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </div>
-        </section>
+        </div>
 
         {/* Other Projects */}
-        <section>
-          <motion.h2
+        <div>
+          <motion.h3
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             className="text-3xl font-bold text-gray-900 dark:text-white mb-8"
           >
             Other Projects
-          </motion.h2>
+          </motion.h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {otherProjects.map((project, index) => (
               <ProjectCard key={project.id} project={project} index={index + featuredProjects.length} />
             ))}
           </div>
-        </section>
+        </div>
       </div>
-      </div>
-    </>
+    </section>
   );
 }

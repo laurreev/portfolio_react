@@ -2,6 +2,7 @@
 
 import Hero from '@/components/Hero';
 import Skills from '@/components/Skills';
+import Projects from '@/components/Projects';
 import ContactForm from '@/components/ContactForm';
 import FloatingActions from '@/components/FloatingActions';
 import Navbar from '@/components/Navbar';
@@ -16,6 +17,7 @@ export default function Home() {
         <div id="skills">
           <Skills />
         </div>
+        <Projects />
         <section id="contact" className="py-20 bg-gray-50 dark:bg-gray-800">
           <div className="max-w-4xl mx-auto px-4">
             <div className="text-center mb-16">
