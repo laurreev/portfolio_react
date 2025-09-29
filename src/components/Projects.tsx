@@ -49,7 +49,7 @@ const projects = [
     tags: ['Next.js', 'React', 'TypeScript', 'Tailwind CSS', 'Framer Motion'],
     icons: [SiNextdotjs, SiReact, SiTypescript, SiTailwindcss],
     github: 'https://github.com/laurreev/portfolio_react',
-    demo: 'https://dlanordev.vercel.app/',
+    demo: 'https://dlanor.is-a.dev/',
     featured: true,
   },
   {

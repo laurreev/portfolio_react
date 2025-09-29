@@ -4,13 +4,14 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -39,6 +40,12 @@ export default function Navbar() {
         // If we're at the very top of the page, show home as active
         if (window.scrollY < 200) {
           currentSection = 'home';
+        }
+        
+        // Update URL hash if section changed
+        if (currentSection !== activeSection) {
+          const newUrl = currentSection === 'home' ? '/' : `/#${currentSection}`;
+          window.history.replaceState(null, '', newUrl);
         }
         
         setActiveSection(currentSection);
