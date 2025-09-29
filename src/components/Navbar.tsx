@@ -42,12 +42,6 @@ export default function Navbar() {
           currentSection = 'home';
         }
         
-        // Update URL hash if section changed
-        if (currentSection !== activeSection) {
-          const newUrl = currentSection === 'home' ? '/' : `/#${currentSection}`;
-          window.history.replaceState(null, '', newUrl);
-        }
-        
         setActiveSection(currentSection);
       }
     };
@@ -58,6 +52,14 @@ export default function Navbar() {
     
     return () => window.removeEventListener('scroll', handleScroll);
   }, [pathname]);
+
+  // Update URL when activeSection changes
+  useEffect(() => {
+    if (pathname === '/' && activeSection) {
+      const newUrl = activeSection === 'home' ? '/' : `/#${activeSection}`;
+      window.history.replaceState(null, '', newUrl);
+    }
+  }, [activeSection, pathname]);
 
   const navItems = [
     { href: '#home', label: 'Home', section: 'home' },
