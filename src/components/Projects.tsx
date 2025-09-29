@@ -1,10 +1,11 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import { FaGithub, FaExternalLinkAlt, FaShieldAlt, FaMapMarkedAlt } from 'react-icons/fa';
+import { FaGithub, FaExternalLinkAlt, FaShieldAlt, FaMapMarkedAlt, FaTimes } from 'react-icons/fa';
 import { SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiFirebase, SiFlutter, SiDart, SiNodedotjs, SiGooglecloud } from 'react-icons/si';
 import { IconType } from 'react-icons';
+import { useState, useEffect } from 'react';
 
 interface Project {
   id: number;
@@ -77,8 +78,23 @@ const projects = [
 ];
 
 export default function Projects() {
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const featuredProjects = projects.filter(project => project.featured);
   const otherProjects = projects.filter(project => !project.featured);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (selectedProject) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup function to restore scroll on unmount
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedProject]);
 
   const ProjectCard = ({ project, index }: { project: Project; index: number }) => (
     <motion.div
@@ -86,8 +102,9 @@ export default function Projects() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group"
-      whileHover={{ y: -10 }}
+      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group cursor-pointer"
+      whileHover={{ y: -10, scale: 1.02 }}
+      onClick={() => setSelectedProject(project)}
     >
       {/* Project Image */}
       <div className="h-48 relative overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20">
@@ -221,8 +238,166 @@ export default function Projects() {
     </motion.div>
   );
 
+  // Project Detail Modal
+  const ProjectModal = () => (
+    <AnimatePresence>
+      {selectedProject && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setSelectedProject(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="relative">
+              {selectedProject.image && selectedProject.image !== '/' ? (
+                <div className="h-64 relative">
+                  <Image
+                    src={selectedProject.image}
+                    alt={selectedProject.title}
+                    fill
+                    className="object-contain bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20"
+                  />
+                </div>
+              ) : (
+                <div className="h-64 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 flex items-center justify-center">
+                  <div className="text-8xl text-blue-600/30 dark:text-blue-400/30">
+                    {(() => {
+                      const IconComponent = selectedProject.icons[0];
+                      return IconComponent ? <IconComponent /> : null;
+                    })()}
+                  </div>
+                </div>
+              )}
+              
+              {/* Close Button */}
+              <button
+                onClick={() => setSelectedProject(null)}
+                className="absolute top-4 right-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full p-2 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700 transition-colors"
+              >
+                <FaTimes className="text-xl" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-8 max-h-[calc(90vh-16rem)] overflow-y-auto">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                {selectedProject.title}
+              </h2>
+              
+              <p className="text-gray-600 dark:text-gray-300 mb-6 leading-relaxed text-lg">
+                {selectedProject.description}
+              </p>
+
+              {/* All Highlights */}
+              {selectedProject.highlights && (
+                <div className="mb-6">
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                    Key Features & Highlights:
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {selectedProject.highlights.map((highlight, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                        className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+                      >
+                        <span className="text-blue-600 dark:text-blue-400 mt-1">✓</span>
+                        <span className="text-gray-700 dark:text-gray-300">{highlight}</span>
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Tech Stack */}
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-4">
+                  Technologies Used:
+                </h3>
+                <div className="flex flex-wrap gap-4 mb-4">
+                  {selectedProject.icons.map((Icon, index) => (
+                    <motion.div
+                      key={index}
+                      whileHover={{ scale: 1.2, rotate: 360 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <div className="p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <Icon className="text-3xl text-gray-600 dark:text-gray-400" />
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProject.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-4 py-2 text-sm font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                {selectedProject.isPrivate ? (
+                  <div className="flex items-center justify-center gap-3 text-gray-500 dark:text-gray-400 px-6 py-3 bg-gray-100 dark:bg-gray-700 rounded-lg flex-1">
+                    <FaShieldAlt className="text-orange-500 text-xl" />
+                    <span className="font-medium">Private Client Project - Code & Demo Unavailable</span>
+                  </div>
+                ) : (
+                  <>
+                    <motion.a
+                      href={selectedProject.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-3 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 border border-gray-300 dark:border-gray-600 hover:border-blue-600 dark:hover:border-blue-400 px-6 py-3 rounded-lg font-medium transition-colors flex-1"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaGithub className="text-xl" />
+                      <span>View Source Code</span>
+                    </motion.a>
+                    
+                    <motion.a
+                      href={selectedProject.demo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors flex-1"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaExternalLinkAlt className="text-xl" />
+                      <span>View Live Demo</span>
+                    </motion.a>
+                  </>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   return (
-    <section id="projects" className="py-20 bg-gray-50 dark:bg-gray-900">
+    <>
+      <ProjectModal />
+      <section id="projects" className="py-20 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
@@ -278,5 +453,6 @@ export default function Projects() {
         </div>
       </div>
     </section>
+    </>
   );
 }
