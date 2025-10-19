@@ -3,21 +3,32 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaFacebook, FaInstagram, FaTiktok, FaTelegram } from 'react-icons/fa';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if Turnstile is completed
+    if (!turnstileToken) {
+      alert("Please complete the security verification.");
+      return;
+    }
+    
     setSubmitting(true);
     
     const form = formRef.current;
     if (!form) return;
     
     const data = new FormData(form);
+    // Add turnstile token to form data
+    data.append('turnstile-token', turnstileToken);
     const res = await fetch("/api/contact", {
       method: "POST",
       body: data,
@@ -28,8 +39,10 @@ export default function ContactForm() {
     if (res.ok) {
       setDialogOpen(true);
       form.reset();
+      setTurnstileToken(null); // Reset turnstile
     } else {
-      alert("There was an error submitting the form. Please try again.");
+      const errorData = await res.json();
+      alert(errorData.error || "There was an error submitting the form. Please try again.");
     }
   };
 
@@ -245,15 +258,35 @@ export default function ContactForm() {
             />
           </motion.div>
 
+          {/* Turnstile CAPTCHA */}
+          <motion.div
+            className="flex justify-center"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={setTurnstileToken}
+              onError={() => setTurnstileToken(null)}
+              onExpire={() => setTurnstileToken(null)}
+              options={{
+                theme: 'auto',
+                size: 'normal'
+              }}
+              className="mx-auto"
+            />
+          </motion.div>
+
           <motion.button
             type="submit"
-            disabled={submitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 relative overflow-hidden"
-            whileHover={{ 
+            disabled={submitting || !turnstileToken}
+            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-6 rounded-lg transition-all duration-300 relative overflow-hidden disabled:cursor-not-allowed"
+            whileHover={!submitting && turnstileToken ? { 
               scale: 1.02,
               boxShadow: "0 10px 20px rgba(59, 130, 246, 0.3)"
-            }}
-            whileTap={{ scale: 0.98 }}
+            } : {}}
+            whileTap={!submitting && turnstileToken ? { scale: 0.98 } : {}}
           >
             {/* Button ripple effect */}
             <motion.div
@@ -265,7 +298,7 @@ export default function ContactForm() {
             />
             
             <span className="relative z-10">
-              {submitting ? 'Sending...' : 'Send Message'}
+              {submitting ? 'Sending...' : (!turnstileToken ? 'Complete verification to send' : 'Send Message')}
             </span>
           </motion.button>
         </form>

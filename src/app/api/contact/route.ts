@@ -1,5 +1,22 @@
 import nodemailer from "nodemailer";
 
+// Verify Turnstile token
+async function verifyTurnstileToken(token: string): Promise<boolean> {
+  const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      secret: process.env.TURNSTILE_SECRET_KEY,
+      response: token,
+    }),
+  });
+
+  const data = await response.json();
+  return data.success;
+}
+
 export async function POST(req: Request) {
   try {
     const data = await req.formData();
@@ -7,16 +24,39 @@ export async function POST(req: Request) {
     const email = (data.get("Email") as string) || "";
     const subject = (data.get("Subject") as string) || "Contact Form Submission";
     const message = (data.get("Message") as string) || "";
+    const turnstileToken = (data.get("turnstile-token") as string) || "";
 
     // Validate required fields
     if (!email || !name || !message) {
-      return new Response(JSON.stringify({ ok: false, error: "Missing required fields" }), { status: 400 });
+      return new Response(JSON.stringify({ error: "Missing required fields" }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Verify Turnstile token
+    if (!turnstileToken) {
+      return new Response(JSON.stringify({ error: "Missing security verification" }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+
+    const isTokenValid = await verifyTurnstileToken(turnstileToken);
+    if (!isTokenValid) {
+      return new Response(JSON.stringify({ error: "Security verification failed" }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Basic email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return new Response(JSON.stringify({ ok: false, error: "Invalid email format" }), { status: 400 });
+      return new Response(JSON.stringify({ error: "Invalid email format" }), { 
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     // Configure SMTP transporter
@@ -46,9 +86,18 @@ export async function POST(req: Request) {
       html: `<p>Dear ${name || "Guest"},</p><p>Thank you for your email. Your message has been received and I will get back to you as soon as possible.</p><p>If you need to reach me directly, contact <a href="mailto:dlanor.dev@gmail.com">dlanor.dev@gmail.com</a>.</p><p>You can also find me on social media:</p><ul><li>Facebook: <a href="https://www.facebook.com/sinnerdlei">https://www.facebook.com/sinnerdlei</a></li><li>Instagram: <a href="https://www.instagram.com/sinnerdlei">https://www.instagram.com/sinnerdlei</a></li><li>Telegram: <a href="https://t.me/sinnerdlei">https://t.me/sinnerdlei</a></li><li>Twitter: <a href="https://twitter.com/sinnerdlei">https://twitter.com/sinnerdlei</a></li></ul><p>Best regards,<br/>Dlanor Domingo</p>`,
     });
 
-    return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { 
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
   } catch (err) {
+    console.error("Contact form error:", err);
     const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
-    return new Response(JSON.stringify({ ok: false, error: errorMessage }), { status: 500 });
+    return new Response(JSON.stringify({ 
+      error: "Failed to send message. Please try again." 
+    }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
