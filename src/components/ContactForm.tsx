@@ -42,7 +42,14 @@ export default function ContactForm() {
       setTurnstileToken(null); // Reset turnstile
     } else {
       const errorData = await res.json();
-      alert(errorData.error || "There was an error submitting the form. Please try again.");
+      const errorMessage = errorData.error || "There was an error submitting the form. Please try again.";
+      
+      // Show more user-friendly error for rate limits
+      if (res.status === 429) {
+        alert(`⚠️ Rate Limit Reached\n\n${errorMessage}\n\nThis helps prevent spam and ensures genuine inquiries get proper attention.`);
+      } else {
+        alert(errorMessage);
+      }
     }
   };
 
