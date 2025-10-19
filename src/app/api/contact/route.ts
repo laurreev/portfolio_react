@@ -1,46 +1,65 @@
 import nodemailer from "nodemailer";
+import { initializeApp, getApps } from 'firebase/app';
+import { getFirestore, doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
 
-// Rate limiting storage (in-memory)
+// Firebase config
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
+};
+
+// Initialize Firebase
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
+const db = getFirestore(app);
+
+// Rate limiting storage (Firebase Firestore)
 interface RateLimit {
   count: number;
   resetTime: number;
+  lastUsed: number;
 }
 
-const rateLimitMap = new Map<string, RateLimit>();
-
-// Clean up old entries every hour
-setInterval(() => {
-  const now = Date.now();
-  for (const [ip, data] of rateLimitMap.entries()) {
-    if (now > data.resetTime) {
-      rateLimitMap.delete(ip);
-    }
-  }
-}, 60 * 60 * 1000); // 1 hour cleanup
-
-// Check rate limit for IP
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
+// Check rate limit for IP using Firebase
+async function checkRateLimit(ip: string): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
   const now = Date.now();
   const resetTime = now + (24 * 60 * 60 * 1000); // 24 hours from now
   
-  const existing = rateLimitMap.get(ip);
-  
-  if (!existing || now > existing.resetTime) {
-    // First request or expired limit
-    rateLimitMap.set(ip, { count: 1, resetTime });
+  try {
+    const docRef = doc(db, 'rateLimits', ip);
+    const docSnap = await getDoc(docRef);
+    
+    if (!docSnap.exists() || now > docSnap.data().resetTime) {
+      // First request or expired limit - create new entry
+      const newLimit: RateLimit = { count: 1, resetTime, lastUsed: now };
+      await setDoc(docRef, newLimit);
+      return { allowed: true, remaining: 1, resetTime };
+    }
+    
+    const existing = docSnap.data() as RateLimit;
+    
+    if (existing.count >= 2) {
+      // Rate limit exceeded
+      return { allowed: false, remaining: 0, resetTime: existing.resetTime };
+    }
+    
+    // Increment count
+    const updatedLimit: RateLimit = {
+      count: existing.count + 1,
+      resetTime: existing.resetTime,
+      lastUsed: now
+    };
+    await setDoc(docRef, updatedLimit);
+    
+    return { allowed: true, remaining: 2 - updatedLimit.count, resetTime: existing.resetTime };
+  } catch (error) {
+    console.error('Rate limit check failed:', error);
+    // On error, allow the request but log it
     return { allowed: true, remaining: 1, resetTime };
   }
-  
-  if (existing.count >= 2) {
-    // Rate limit exceeded
-    return { allowed: false, remaining: 0, resetTime: existing.resetTime };
-  }
-  
-  // Increment count
-  existing.count++;
-  rateLimitMap.set(ip, existing);
-  
-  return { allowed: true, remaining: 2 - existing.count, resetTime: existing.resetTime };
 }
 
 // Get client IP address
@@ -94,7 +113,7 @@ export async function POST(req: Request) {
     const clientIP = getClientIP(req);
     console.log('Client IP:', clientIP);
     
-    const rateLimitResult = checkRateLimit(clientIP);
+    const rateLimitResult = await checkRateLimit(clientIP);
     console.log('Rate limit check:', rateLimitResult);
     
     if (!rateLimitResult.allowed) {
