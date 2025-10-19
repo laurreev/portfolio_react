@@ -25,40 +25,101 @@ interface RateLimit {
 
 // Check rate limit for IP using Firebase
 async function checkRateLimit(ip: string): Promise<{ allowed: boolean; remaining: number; resetTime: number }> {
+  if (!ip || ip === 'unknown') {
+    console.log('Unknown IP, allowing request');
+    return { allowed: true, remaining: 1, resetTime: Date.now() + (24 * 60 * 60 * 1000) };
+  }
+
   const now = Date.now();
-  const resetTime = now + (24 * 60 * 60 * 1000); // 24 hours from now
+  const RATE_LIMIT = 2;
+  const WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
   
   try {
-    const docRef = doc(db, 'rateLimits', ip);
+    console.log(`Checking rate limit for IP: ${ip}`);
+    
+    // Create safe document ID by replacing dots and other special chars
+    const safeIP = ip.replace(/[^a-zA-Z0-9]/g, '_');
+    const docRef = doc(db, 'contactRateLimits', safeIP);
+    
     const docSnap = await getDoc(docRef);
+    console.log(`Document exists: ${docSnap.exists()}`);
     
-    if (!docSnap.exists() || now > docSnap.data().resetTime) {
-      // First request or expired limit - create new entry
-      const newLimit: RateLimit = { count: 1, resetTime, lastUsed: now };
+    if (!docSnap.exists()) {
+      // First time this IP is contacting
+      const newLimit: RateLimit = { 
+        count: 1, 
+        resetTime: now + WINDOW_MS, 
+        lastUsed: now 
+      };
+      
       await setDoc(docRef, newLimit);
-      return { allowed: true, remaining: 1, resetTime };
+      console.log(`New rate limit created for ${ip}: count=1, remaining=1`);
+      
+      return { 
+        allowed: true, 
+        remaining: RATE_LIMIT - 1, 
+        resetTime: newLimit.resetTime 
+      };
     }
     
-    const existing = docSnap.data() as RateLimit;
+    const data = docSnap.data() as RateLimit;
+    console.log(`Existing data:`, data);
     
-    if (existing.count >= 2) {
-      // Rate limit exceeded
-      return { allowed: false, remaining: 0, resetTime: existing.resetTime };
+    // Check if the limit window has expired
+    if (now > data.resetTime) {
+      console.log(`Rate limit window expired, resetting for ${ip}`);
+      
+      const newLimit: RateLimit = { 
+        count: 1, 
+        resetTime: now + WINDOW_MS, 
+        lastUsed: now 
+      };
+      
+      await setDoc(docRef, newLimit);
+      
+      return { 
+        allowed: true, 
+        remaining: RATE_LIMIT - 1, 
+        resetTime: newLimit.resetTime 
+      };
     }
     
-    // Increment count
+    // Check if limit exceeded
+    if (data.count >= RATE_LIMIT) {
+      const hoursLeft = Math.ceil((data.resetTime - now) / (1000 * 60 * 60));
+      console.log(`Rate limit exceeded for ${ip}. ${hoursLeft} hours left`);
+      
+      return { 
+        allowed: false, 
+        remaining: 0, 
+        resetTime: data.resetTime 
+      };
+    }
+    
+    // Increment the count
     const updatedLimit: RateLimit = {
-      count: existing.count + 1,
-      resetTime: existing.resetTime,
+      count: data.count + 1,
+      resetTime: data.resetTime,
       lastUsed: now
     };
-    await setDoc(docRef, updatedLimit);
     
-    return { allowed: true, remaining: 2 - updatedLimit.count, resetTime: existing.resetTime };
+    await setDoc(docRef, updatedLimit);
+    console.log(`Rate limit updated for ${ip}: count=${updatedLimit.count}, remaining=${RATE_LIMIT - updatedLimit.count}`);
+    
+    return { 
+      allowed: true, 
+      remaining: RATE_LIMIT - updatedLimit.count, 
+      resetTime: data.resetTime 
+    };
+    
   } catch (error) {
-    console.error('Rate limit check failed:', error);
-    // On error, allow the request but log it
-    return { allowed: true, remaining: 1, resetTime };
+    console.error('Firebase rate limit error:', error);
+    // On Firebase error, allow the request but log it
+    return { 
+      allowed: true, 
+      remaining: 1, 
+      resetTime: now + WINDOW_MS 
+    };
   }
 }
 
@@ -118,9 +179,12 @@ export async function POST(req: Request) {
     
     if (!rateLimitResult.allowed) {
       const resetDate = new Date(rateLimitResult.resetTime).toLocaleString();
-      console.log('Rate limit exceeded for IP:', clientIP);
+      const hoursLeft = Math.ceil((rateLimitResult.resetTime - Date.now()) / (1000 * 60 * 60));
+      
+      console.log(`Rate limit BLOCKED for IP: ${clientIP}, hours left: ${hoursLeft}`);
+      
       return new Response(JSON.stringify({ 
-        error: `Rate limit exceeded. You can send up to 2 messages per day. Try again after ${resetDate}` 
+        error: `Rate limit exceeded. You can send up to 2 messages per day. Please wait ${hoursLeft} hours before trying again. (Reset: ${resetDate})` 
       }), { 
         status: 429,
         headers: { 
