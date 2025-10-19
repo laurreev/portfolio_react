@@ -3,10 +3,11 @@
 import { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaFacebook, FaInstagram, FaTiktok, FaTelegram } from 'react-icons/fa';
-import { Turnstile } from '@marsidev/react-turnstile';
+import { Turnstile, TurnstileInstance } from '@marsidev/react-turnstile';
 
 export default function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
@@ -41,7 +42,11 @@ export default function ContactForm() {
     if (res.ok) {
       setDialogOpen(true);
       form.reset();
-      setTurnstileToken(null); // Reset turnstile
+      setTurnstileToken(null); // Reset turnstile token
+      // Reset the Turnstile widget to allow new verification
+      if (turnstileRef.current) {
+        turnstileRef.current.reset();
+      }
     } else {
       const errorData = await res.json();
       alert(errorData.error || "There was an error submitting the form. Please try again.");
@@ -269,6 +274,7 @@ export default function ContactForm() {
           >
             {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
               <Turnstile
+                ref={turnstileRef}
                 siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                 onSuccess={(token) => {
                   console.log('Turnstile success, token received');
