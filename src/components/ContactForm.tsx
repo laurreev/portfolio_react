@@ -9,6 +9,8 @@ export default function ContactForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const turnstileRef = useRef<TurnstileInstance>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<'success' | 'error' | 'rateLimit'>('success');
+  const [dialogMessage, setDialogMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
@@ -40,6 +42,8 @@ export default function ContactForm() {
     setSubmitting(false);
     
     if (res.ok) {
+      setDialogType('success');
+      setDialogMessage('Your message has been submitted successfully. Thank you for reaching out!');
       setDialogOpen(true);
       form.reset();
       setTurnstileToken(null); // Reset turnstile token
@@ -49,7 +53,17 @@ export default function ContactForm() {
       }
     } else {
       const errorData = await res.json();
-      alert(errorData.error || "There was an error submitting the form. Please try again.");
+      const errorMessage = errorData.error || "There was an error submitting the form. Please try again.";
+      
+      // Show more user-friendly error for rate limits
+      if (res.status === 429) {
+        setDialogType('rateLimit');
+        setDialogMessage(errorMessage);
+      } else {
+        setDialogType('error');
+        setDialogMessage(errorMessage);
+      }
+      setDialogOpen(true);
     }
   };
 
@@ -326,7 +340,7 @@ export default function ContactForm() {
           </motion.button>
         </form>
 
-        {/* Success Dialog */}
+        {/* Universal Dialog */}
         {dialogOpen && (
           <motion.div 
             className="fixed inset-0 flex items-center justify-center z-50 bg-black/60"
@@ -335,42 +349,88 @@ export default function ContactForm() {
             exit={{ opacity: 0 }}
           >
             <motion.div 
-              className="bg-white dark:bg-gray-800 border border-blue-500 rounded-xl p-8 shadow-2xl flex flex-col items-center max-w-md mx-4"
+              className={`bg-white dark:bg-gray-800 border rounded-xl p-8 shadow-2xl flex flex-col items-center max-w-md mx-4 ${
+                dialogType === 'success' ? 'border-green-500' : 
+                dialogType === 'rateLimit' ? 'border-orange-500' : 
+                'border-red-500'
+              }`}
               initial={{ scale: 0.7, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.7, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               <motion.span 
-                className="text-4xl mb-4 text-blue-600"
+                className={`text-4xl mb-4 ${
+                  dialogType === 'success' ? 'text-green-600' : 
+                  dialogType === 'rateLimit' ? 'text-orange-500' : 
+                  'text-red-500'
+                }`}
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 500 }}
               >
-                ✅
+                {dialogType === 'success' ? '✅' : dialogType === 'rateLimit' ? '⚠️' : '❌'}
               </motion.span>
-              <motion.p 
-                className="text-gray-900 dark:text-gray-100 mb-6 text-center"
-                initial={{ opacity: 0, y: 10 }}
+              
+              <motion.h3
+                className={`text-xl font-bold mb-4 text-center ${
+                  dialogType === 'success' ? 'text-green-700 dark:text-green-400' : 
+                  dialogType === 'rateLimit' ? 'text-orange-700 dark:text-orange-400' : 
+                  'text-red-700 dark:text-red-400'
+                }`}
+                initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                Your message has been submitted successfully.<br />
-                Thank you for reaching out!<br />
-                <span className="block mt-2 text-sm text-blue-600 dark:text-blue-400">
-                  You will receive an automatic confirmation email shortly. Please check your inbox (and spam folder).
-                </span>
+                {dialogType === 'success' ? 'Message Sent Successfully!' : 
+                 dialogType === 'rateLimit' ? 'Rate Limit Reached' : 
+                 'Error Sending Message'}
+              </motion.h3>
+              
+              <motion.p 
+                className="text-gray-900 dark:text-gray-100 mb-6 text-center leading-relaxed"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                {dialogType === 'success' ? (
+                  <>
+                    {dialogMessage}
+                    <span className="block mt-3 text-sm text-blue-600 dark:text-blue-400">
+                      You will receive an automatic confirmation email shortly. Please check your inbox (and spam folder).
+                    </span>
+                  </>
+                ) : dialogType === 'rateLimit' ? (
+                  <>
+                    {dialogMessage}
+                    <span className="block mt-3 text-sm text-orange-600 dark:text-orange-400">
+                      This helps prevent spam and ensures genuine inquiries get proper attention.
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    {dialogMessage}
+                    <span className="block mt-3 text-sm text-gray-600 dark:text-gray-400">
+                      Please try again or contact me directly at dlanor.dev@gmail.com
+                    </span>
+                  </>
+                )}
               </motion.p>
+              
               <motion.button 
-                className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-all duration-300"
+                className={`font-medium py-3 px-8 rounded-lg transition-all duration-300 ${
+                  dialogType === 'success' ? 'bg-green-600 hover:bg-green-700 text-white' : 
+                  dialogType === 'rateLimit' ? 'bg-orange-600 hover:bg-orange-700 text-white' : 
+                  'bg-red-600 hover:bg-red-700 text-white'
+                }`}
                 onClick={() => setDialogOpen(false)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
+                transition={{ delay: 0.5 }}
               >
-                Close
+                {dialogType === 'success' ? 'Great!' : dialogType === 'rateLimit' ? 'Understood' : 'Try Again'}
               </motion.button>
             </motion.div>
           </motion.div>

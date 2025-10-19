@@ -1,5 +1,65 @@
 import nodemailer from "nodemailer";
 
+// Rate limiting storage (in-memory)
+interface RateLimit {
+  count: number;
+  resetTime: number;
+}
+
+const rateLimitMap = new Map<string, RateLimit>();
+
+// Clean up old entries every hour
+setInterval(() => {
+  const now = Date.now();
+  for (const [ip, data] of rateLimitMap.entries()) {
+    if (now > data.resetTime) {
+      rateLimitMap.delete(ip);
+    }
+  }
+}, 60 * 60 * 1000); // 1 hour cleanup
+
+// Check rate limit for IP
+function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetTime: number } {
+  const now = Date.now();
+  const resetTime = now + (24 * 60 * 60 * 1000); // 24 hours from now
+  
+  const existing = rateLimitMap.get(ip);
+  
+  if (!existing || now > existing.resetTime) {
+    // First request or expired limit
+    rateLimitMap.set(ip, { count: 1, resetTime });
+    return { allowed: true, remaining: 1, resetTime };
+  }
+  
+  if (existing.count >= 2) {
+    // Rate limit exceeded
+    return { allowed: false, remaining: 0, resetTime: existing.resetTime };
+  }
+  
+  // Increment count
+  existing.count++;
+  rateLimitMap.set(ip, existing);
+  
+  return { allowed: true, remaining: 2 - existing.count, resetTime: existing.resetTime };
+}
+
+// Get client IP address
+function getClientIP(request: Request): string {
+  // Check various headers for IP (Vercel, Cloudflare, etc.)
+  const forwarded = request.headers.get('x-forwarded-for');
+  const realIP = request.headers.get('x-real-ip');
+  const cfConnectingIP = request.headers.get('cf-connecting-ip');
+  
+  if (cfConnectingIP) return cfConnectingIP;
+  if (realIP) return realIP;
+  if (forwarded) {
+    // x-forwarded-for can contain multiple IPs, take the first one
+    return forwarded.split(',')[0].trim();
+  }
+  
+  return 'unknown';
+}
+
 // Verify Turnstile token
 async function verifyTurnstileToken(token: string): Promise<boolean> {
   try {
@@ -30,6 +90,29 @@ export async function POST(req: Request) {
   try {
     console.log('=== Contact API Called ===');
     
+    // Get client IP and check rate limit
+    const clientIP = getClientIP(req);
+    console.log('Client IP:', clientIP);
+    
+    const rateLimitResult = checkRateLimit(clientIP);
+    console.log('Rate limit check:', rateLimitResult);
+    
+    if (!rateLimitResult.allowed) {
+      const resetDate = new Date(rateLimitResult.resetTime).toLocaleString();
+      console.log('Rate limit exceeded for IP:', clientIP);
+      return new Response(JSON.stringify({ 
+        error: `Rate limit exceeded. You can send up to 2 messages per day. Try again after ${resetDate}` 
+      }), { 
+        status: 429,
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-RateLimit-Limit': '2',
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': rateLimitResult.resetTime.toString()
+        }
+      });
+    }
+
     const data = await req.formData();
     const name = (data.get("Name") as string) || "";
     const email = (data.get("Email") as string) || "";
@@ -144,7 +227,10 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ ok: true }), { 
       status: 200,
       headers: { 
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'X-RateLimit-Limit': '2',
+        'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+        'X-RateLimit-Reset': rateLimitResult.resetTime.toString()
       }
     });
   } catch (err) {
