@@ -21,6 +21,8 @@ export default function ContactForm() {
       return;
     }
     
+    console.log('Submitting form with Turnstile token:', turnstileToken ? 'Token present' : 'No token');
+    
     setSubmitting(true);
     
     const form = formRef.current;
@@ -42,14 +44,7 @@ export default function ContactForm() {
       setTurnstileToken(null); // Reset turnstile
     } else {
       const errorData = await res.json();
-      const errorMessage = errorData.error || "There was an error submitting the form. Please try again.";
-      
-      // Show more user-friendly error for rate limits
-      if (res.status === 429) {
-        alert(`⚠️ Rate Limit Reached\n\n${errorMessage}\n\nThis helps prevent spam and ensures genuine inquiries get proper attention.`);
-      } else {
-        alert(errorMessage);
-      }
+      alert(errorData.error || "There was an error submitting the form. Please try again.");
     }
   };
 
@@ -272,17 +267,32 @@ export default function ContactForm() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Turnstile
-              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-              onSuccess={setTurnstileToken}
-              onError={() => setTurnstileToken(null)}
-              onExpire={() => setTurnstileToken(null)}
-              options={{
-                theme: 'auto',
-                size: 'normal'
-              }}
-              className="mx-auto"
-            />
+            {process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ? (
+              <Turnstile
+                siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                onSuccess={(token) => {
+                  console.log('Turnstile success, token received');
+                  setTurnstileToken(token);
+                }}
+                onError={() => {
+                  console.log('Turnstile error');
+                  setTurnstileToken(null);
+                }}
+                onExpire={() => {
+                  console.log('Turnstile expired');
+                  setTurnstileToken(null);
+                }}
+                options={{
+                  theme: 'auto',
+                  size: 'normal'
+                }}
+                className="mx-auto"
+              />
+            ) : (
+              <div className="text-red-500 text-sm text-center p-4 border border-red-300 rounded">
+                ⚠️ Turnstile not configured. Missing NEXT_PUBLIC_TURNSTILE_SITE_KEY
+              </div>
+            )}
           </motion.div>
 
           <motion.button
